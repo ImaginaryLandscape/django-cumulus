@@ -1,6 +1,12 @@
 import mimetypes
 import os
 from StringIO import StringIO
+import hmac
+from time import time
+try:
+    from haslib import sha1 as sha
+except:
+    import sha
 
 import cloudfiles
 from cloudfiles.errors import NoSuchObject, ResponseError
@@ -8,7 +14,10 @@ from cloudfiles.errors import NoSuchObject, ResponseError
 from django.core.files import File
 from django.core.files.storage import Storage
 
-from .settings import CUMULUS
+try:
+    from .settings import CUMULUS
+except:
+    from cumulus.settings import CUMULUS
 
 
 class CloudFilesStorage(Storage):
@@ -30,6 +39,10 @@ class CloudFilesStorage(Storage):
         self.use_servicenet = CUMULUS['SERVICENET']
         self.username = username or CUMULUS['USERNAME']
         self.use_ssl = CUMULUS['USE_SSL']
+        self.public = CUMULUS['PUBLIC']
+        self.x_meta_temp_url_key = CUMULUS['X_ACCOUNT_META_TEMP_URL_KEY']
+        self.x_storage_url = CUMULUS['X_STORAGE_URL']
+        self.x_temp_url_timeout = CUMULUS['X_TEMP_URL_TIMEOUT']
 
 
     def __getstate__(self):
@@ -67,10 +80,13 @@ class CloudFilesStorage(Storage):
 
     def _set_container(self, container):
         """
-        Set the container, making it publicly available if it is not already.
+        Set the container's public/private setting..
         """
-        if not container.is_public():
+        if self.public and not container.is_public():
             container.make_public()
+        if not self.public and container.is_public():
+            container.make_private()
+
         if hasattr(self, '_container_public_uri'):
             delattr(self, '_container_public_uri')
         self._container = container
@@ -207,7 +223,25 @@ class CloudFilesStorage(Storage):
         Returns an absolute URL where the file's contents can be accessed
         directly by a web browser.
         """
-        return '%s/%s' % (self.container_url, name)
+        if self.public:
+            return '%s/%s' % (self.container_url, name)
+        else:
+            return self._get_temp_url(name)
+
+    def _get_temp_url(self, name):
+        """
+        Returns an absolute, temporary URL where the file's contents can be
+        accessed directly by a web browser.
+        """
+        method = 'GET'
+        expires = int(time() + self.x_temp_url_timeout)
+        key = self.x_meta_temp_url_key
+        base = 'https://storage101.dfw1.clouddrive.com'
+        path = '%s/%s/%s' % (self.x_storage_url, self.container_name, name)
+        hmac_body = '%s\n%s\n%s' % (method, expires, path)
+        sig = hmac.new(key, hmac_body, sha).hexdigest()
+        return  '%s%s?temp_url_sig=%s&temp_url_expires=%s' % (base, path, sig, 
+                                                                expires)
 
 
 class CloudStorageDirectory(File):

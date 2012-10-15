@@ -13,7 +13,11 @@ CUMULUS = {
     'USE_SSL': False,
     'USERNAME': None,
     'STATIC_CONTAINER': None,
-    'FILTER_LIST': []
+    'FILTER_LIST': [],
+    'PUBLIC': True,
+    'X_ACCOUNT_META_TEMP_URL_KEY': None,
+    'X_STORAGE_URL': None,
+    'X_TEMP_URL_TIMEOUT': 600,
 }
 
 if hasattr(settings, 'CUMULUS'):
@@ -38,4 +42,9 @@ if not hasattr(settings, 'CUMULUS'):
         'TIMEOUT': getattr(settings, 'CUMULUS_TIMEOUT', 5),
         'TTL': getattr(settings, 'CUMULUS_TTL', 600),
         'USERNAME': getattr(settings, 'CUMULUS_USERNAME'),
+        'X_ACCOUNT_META_TEMP_URL_KEY': getattr(settings, 
+            'X_ACCOUNT_META_TEMP_URL_KEY', None),
+        'X_STORAGE_URL': getattr(settings, 'X_STORAGE_URL', None),
+        'PUBLIC': getattr(settings, 'PUBLIC', True),
+        'X_TEMP_URL_TIMEOUT': getattr(settings, 'X_TEMP_URL_TIMEOUT', 600)
     })
