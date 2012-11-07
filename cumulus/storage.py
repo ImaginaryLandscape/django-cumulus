@@ -14,10 +14,7 @@ from cloudfiles.errors import NoSuchObject, ResponseError
 from django.core.files import File
 from django.core.files.storage import Storage
 
-try:
-    from .settings import CUMULUS
-except:
-    from cumulus.settings import CUMULUS
+from cumulus.settings import CUMULUS
 
 
 class CloudFilesStorage(Storage):
