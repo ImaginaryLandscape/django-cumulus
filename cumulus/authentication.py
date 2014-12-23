@@ -23,7 +23,7 @@ class Auth(object):
     public = CUMULUS['PUBLIC']
 
     def __init__(self, username=None, api_key=None, container=None,
-                 connection_kwargs=None, container_uri=None):
+                 connection_kwargs=None, container_uri=None, public=None):
         """
         Initializes the settings for the connection and container.
         """
@@ -35,6 +35,8 @@ class Auth(object):
             self.container_name = container
         if connection_kwargs is not None:
             self.connection_kwargs = connection_kwargs
+        if public is not None:
+            self.public = public
 
         # connect
         if self.use_pyrax:

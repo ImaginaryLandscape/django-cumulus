@@ -222,9 +222,10 @@ class SwiftclientStorage(Auth, Storage):
 
     def _get_temp_url(self, name):
         """
-        accessed directly by a web browser.
+        Return a temporary URL where the content of the can be accessed.
+        Expires based on settings passed to CUMULUS init
         """
-        obj = self.container.get_object(name)
+        obj = self._get_object(name)
         return self.container.get_temp_url(
             obj, self.x_temp_url_timeout, key=self.x_meta_temp_url_key
         )
