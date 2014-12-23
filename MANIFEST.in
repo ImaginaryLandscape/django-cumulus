@@ -1,4 +1,6 @@
 include LICENSE.txt
-include README.txt
+include README.rst
 recursive-include docs *
 recursive-exclude example *
+include versioneer.py
+include cumulus/_version.py

@@ -1,15 +1,44 @@
+from urlparse import urlparse
+
 from django.conf import settings
 
-from cumulus.storage import CloudFilesStorage
+from cumulus.storage import SwiftclientStorage, SwiftclientStaticStorage
+
+
+def _is_ssl_uri(uri):
+    return urlparse(uri).scheme == "https"
+
+
+def _get_container_urls(swiftclient_storage):
+    cdn_url = swiftclient_storage.container.cdn_uri
+    ssl_url = swiftclient_storage.container.cdn_ssl_uri
+
+    return cdn_url, ssl_url
+
 
 def cdn_url(request):
     """
-    A context processor to expose the full cdn url in templates.
-
+    A context processor that exposes the full CDN URL in templates.
     """
-    cloudfiles_storage = CloudFilesStorage()
+    cdn_url, ssl_url = _get_container_urls(SwiftclientStorage())
     static_url = settings.STATIC_URL
-    container_url = cloudfiles_storage._get_container_url()
-    cdn_url = container_url + static_url
 
-    return {'CDN_URL': cdn_url}
+    return {
+        "CDN_URL": cdn_url + static_url,
+        "CDN_SSL_URL": ssl_url + static_url,
+    }
+
+
+def static_cdn_url(request):
+    """
+    A context processor that exposes the full static CDN URL
+    as static URL in templates.
+    """
+    cdn_url, ssl_url = _get_container_urls(SwiftclientStaticStorage())
+    static_url = settings.STATIC_URL
+
+    return {
+        "STATIC_URL": cdn_url + static_url,
+        "STATIC_SSL_URL": ssl_url + static_url,
+        "LOCAL_STATIC_URL": static_url,
+    }

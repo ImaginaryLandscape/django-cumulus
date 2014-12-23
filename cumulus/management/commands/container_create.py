@@ -1,33 +1,31 @@
-"""Create a public (CDN) rackspace container.
-"""
-
-import sys
+import optparse
 
 from django.core.management.base import BaseCommand, CommandError
-import cloudfiles
 
-from cumulus import settings
-
-USAGE = 'django-admin.py container_create <container_name>'
+from cumulus.authentication import Auth
+from cumulus.settings import CUMULUS
 
 
 class Command(BaseCommand):
-    """Create a public container"""
+    help = "Create a container."
+    args = "[container_name]"
+
+    option_list = BaseCommand.option_list + (
+        optparse.make_option("-p", "--private", action="store_true", default=False,
+                             dest="private", help="Make a private container."),)
 
     def handle(self, *args, **options):
-        """Main"""
+        if len(args) != 1:
+            raise CommandError("Pass one and only one [container_name] as an argument")
 
-        if len(sys.argv) != 3:
-            raise CommandError('Usage: %s' % USAGE)
+        self._connection = Auth()._get_connection()
 
-        container_name = sys.argv[2]
-        print('Creating container: %s' % container_name)
-
-        conn = cloudfiles.get_connection(
-                        username=settings.CUMULUS['USERNAME'],
-                        api_key=settings.CUMULUS['API_KEY'])
-
-        container = conn.create_container(container_name)
-        container.make_public()
-
-        print('Done')
+        container_name = args[0]
+        print("Creating container: {0}".format(container_name))
+        container = self._connection.create_container(container_name)
+        if options.get("private"):
+            print("Private container: {0}".format(container_name))
+            container.make_private()
+        else:
+            print("Public container: {0}".format(container_name))
+            container.make_public(ttl=CUMULUS["TTL"])

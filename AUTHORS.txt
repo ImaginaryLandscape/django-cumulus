@@ -9,3 +9,10 @@ Ordered by date of first contribution:
   Sebastian Annies
   Ferrix Hovi
   Iván Raskovsky
+  Brandon Konkle
+  Thomas Schreiber
+  Greg Humphreys
+  Ben Lopatin
+  Thijs Triemstra
+  Rafael Ponieman
+  Daniel Izquierdo

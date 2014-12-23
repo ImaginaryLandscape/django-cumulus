@@ -1,50 +1,64 @@
-import cloudfiles
 import optparse
 
-from cumulus import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
+
+from cumulus.authentication import Auth
 
 
 class Command(BaseCommand):
+    help = "Display info for containers"
     args = "[container_name container_name ...]"
-    help = "Display info for cloud files containers"
 
     option_list = BaseCommand.option_list + (
-        optparse.make_option('-n', '--name', action='store_true', dest='name', default=False),
-        optparse.make_option('-c', '--count', action='store_true', dest='count', default=False),
-        optparse.make_option('-s', '--size', action='store_true', dest='size', default=False),
-        optparse.make_option('-u', '--uri', action='store_true', dest='uri', default=False)
+        optparse.make_option("-n", "--name", action="store_true", dest="name", default=False),
+        optparse.make_option("-c", "--count", action="store_true", dest="count", default=False),
+        optparse.make_option("-s", "--size", action="store_true", dest="size", default=False),
+        optparse.make_option("-u", "--uri", action="store_true", dest="uri", default=False)
     )
 
     def handle(self, *args, **options):
-        USERNAME = settings.CUMULUS['USERNAME']
-        API_KEY = settings.CUMULUS['API_KEY']
+        self._connection = Auth()._get_connection()
 
-        conn = cloudfiles.get_connection(USERNAME, API_KEY)
+        container_names = self._connection.list_container_names()
+
         if args:
-            containers = []
-            for container_name in args:
-                try:
-                    container = conn.get_container(container_name)
-                except cloudfiles.errors.NoSuchContainer:
-                    raise CommandError("Container does not exist: %s" % container_name)
-                containers.append(container)
+            matches = []
+            for container_name in container_names:
+                if container_name in args:
+                    matches.append(container_name)
+            container_names = matches
+
+        if not container_names:
+            print("No containers found.")
+            return
+
+        if not args:
+            account_details = self._connection.get_account_details()
+            print("container_count | object_count | bytes_used")
+            print("{0}, {1}, {2}\n".format(
+                account_details["container_count"],
+                account_details["object_count"],
+                account_details["bytes_used"],
+            ))
+
+        opts = ["name", "count", "size", "uri"]
+        output = [o for o in opts if options.get(o)]
+
+        if output:
+            print(" | ".join(output))
         else:
-            containers = conn.get_all_containers()
+            print(" | ".join(opts))
 
-        opts = ['name', 'count', 'size', 'uri']
-
-        for container in containers:
+        for container_name in container_names:
+            container = self._connection.get_container(container_name)
             info = {
-                'name': container.name,
-                'count': container.object_count,
-                'size': container.size_used,
-                'uri': container.public_uri() if container.is_public() else "NOT PUBLIC",
+                "name": container.name,
+                "count": container.object_count,
+                "size": container.total_bytes,
+                "cdn_enabled": container.cdn_enabled,
+                "uri": container.cdn_uri if container.cdn_enabled else None,
             }
             output = [str(info[o]) for o in opts if options.get(o)]
             if not output:
                 output = [str(info[o]) for o in opts]
-            print ', '.join(output)
-
-        if not containers:
-            print 'No containers found.'
+            print(", ".join(output))
