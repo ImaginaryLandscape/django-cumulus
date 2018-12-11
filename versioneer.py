@@ -303,19 +303,19 @@ def run_command(commands, args, cwd=None, verbose=False, hide_stderr=False):
             if e.errno == errno.ENOENT:
                 continue
             if verbose:
-                print("unable to run %s" % args[0])
+                print(("unable to run %s" % args[0]))
                 print(e)
             return None
     else:
         if verbose:
-            print("unable to find command, tried %s" % (commands,))
+            print(("unable to find command, tried %s" % (commands,)))
         return None
     stdout = p.communicate()[0].strip()
     if sys.version >= '3':
         stdout = stdout.decode()
     if p.returncode != 0:
         if verbose:
-            print("unable to run %s (error)" % args[0])
+            print(("unable to run %s (error)" % args[0]))
         return None
     return stdout
 
@@ -549,15 +549,15 @@ def git_versions_from_keywords(keywords, tag_prefix, verbose=False):
         # "stabilization", as well as "HEAD" and "master".
         tags = set([r for r in refs if re.search(r'\d', r)])
         if verbose:
-            print("discarding '%s', no digits" % ",".join(refs-tags))
+            print(("discarding '%s', no digits" % ",".join(refs-tags)))
     if verbose:
-        print("likely tags: %s" % ",".join(sorted(tags)))
+        print(("likely tags: %s" % ",".join(sorted(tags))))
     for ref in sorted(tags):
         # sorting will prefer e.g. "2.0" over "2.0rc1"
         if ref.startswith(tag_prefix):
             r = ref[len(tag_prefix):]
             if verbose:
-                print("picking %s" % r)
+                print(("picking %s" % r))
             return { "version": r,
                      "full": keywords["full"].strip() }
     # no suitable tags, so we use the full revision id
@@ -575,7 +575,7 @@ def git_versions_from_vcs(tag_prefix, root, verbose=False):
 
     if not os.path.exists(os.path.join(root, ".git")):
         if verbose:
-            print("no .git in %s" % root)
+            print(("no .git in %s" % root))
         return {}
 
     GITS = ["git"]
@@ -587,7 +587,7 @@ def git_versions_from_vcs(tag_prefix, root, verbose=False):
         return {}
     if not stdout.startswith(tag_prefix):
         if verbose:
-            print("tag '%s' doesn't start with prefix '%s'" % (stdout, tag_prefix))
+            print(("tag '%s' doesn't start with prefix '%s'" % (stdout, tag_prefix)))
         return {}
     tag = stdout[len(tag_prefix):]
     stdout = run_command(GITS, ["rev-parse", "HEAD"], cwd=root)
@@ -637,8 +637,8 @@ def versions_from_parentdir(parentdir_prefix, root, verbose=False):
     dirname = os.path.basename(root)
     if not dirname.startswith(parentdir_prefix):
         if verbose:
-            print("guessing rootdir is '%s', but '%s' doesn't start with prefix '%s'" %
-                  (root, dirname, parentdir_prefix))
+            print(("guessing rootdir is '%s', but '%s' doesn't start with prefix '%s'" %
+                  (root, dirname, parentdir_prefix)))
         return None
     return {"version": dirname[len(parentdir_prefix):], "full": ""}
 
@@ -677,7 +677,7 @@ def write_to_version_file(filename, versions):
     with open(filename, "w") as f:
         f.write(SHORT_VERSION_PY % versions)
 
-    print("set %s to '%s'" % (filename, versions["version"]))
+    print(("set %s to '%s'" % (filename, versions["version"])))
 
 
 def get_root():
@@ -716,27 +716,27 @@ def get_versions(default=DEFAULT, verbose=False):
         vcs_keywords = get_keywords_f(versionfile_abs)
         ver = versions_from_keywords_f(vcs_keywords, tag_prefix)
         if ver:
-            if verbose: print("got version from expanded keyword %s" % ver)
+            if verbose: print(("got version from expanded keyword %s" % ver))
             return ver
 
     ver = versions_from_file(versionfile_abs)
     if ver:
-        if verbose: print("got version from file %s %s" % (versionfile_abs,ver))
+        if verbose: print(("got version from file %s %s" % (versionfile_abs,ver)))
         return ver
 
     versions_from_vcs_f = vcs_function(VCS, "versions_from_vcs")
     if versions_from_vcs_f:
         ver = versions_from_vcs_f(tag_prefix, root, verbose)
         if ver:
-            if verbose: print("got version from VCS %s" % ver)
+            if verbose: print(("got version from VCS %s" % ver))
             return ver
 
     ver = versions_from_parentdir(parentdir_prefix, root, verbose)
     if ver:
-        if verbose: print("got version from parentdir %s" % ver)
+        if verbose: print(("got version from parentdir %s" % ver))
         return ver
 
-    if verbose: print("got version from default %s" % default)
+    if verbose: print(("got version from default %s" % default))
     return default
 
 def get_version(verbose=False):
@@ -752,7 +752,7 @@ class cmd_version(Command):
         pass
     def run(self):
         ver = get_version(verbose=True)
-        print("Version is currently: %s" % ver)
+        print(("Version is currently: %s" % ver))
 
 
 class cmd_build(_build):
@@ -763,7 +763,7 @@ class cmd_build(_build):
         # with an updated value
         if versionfile_build:
             target_versionfile = os.path.join(self.build_lib, versionfile_build)
-            print("UPDATING %s" % target_versionfile)
+            print(("UPDATING %s" % target_versionfile))
             os.unlink(target_versionfile)
             with open(target_versionfile, "w") as f:
                 f.write(SHORT_VERSION_PY % versions)
@@ -775,7 +775,7 @@ if 'cx_Freeze' in sys.modules:  # cx_freeze enabled?
         def run(self):
             versions = get_versions(verbose=True)
             target_versionfile = versionfile_source
-            print("UPDATING %s" % target_versionfile)
+            print(("UPDATING %s" % target_versionfile))
             os.unlink(target_versionfile)
             with open(target_versionfile, "w") as f:
                 f.write(SHORT_VERSION_PY % versions)
@@ -804,7 +804,7 @@ class cmd_sdist(_sdist):
         # now locate _version.py in the new base_dir directory (remembering
         # that it may be a hardlink) and replace it with an updated value
         target_versionfile = os.path.join(base_dir, versionfile_source)
-        print("UPDATING %s" % target_versionfile)
+        print(("UPDATING %s" % target_versionfile))
         os.unlink(target_versionfile)
         with open(target_versionfile, "w") as f:
             f.write(SHORT_VERSION_PY % self._versioneer_generated_versions)
@@ -824,7 +824,7 @@ class cmd_update_files(Command):
     def finalize_options(self):
         pass
     def run(self):
-        print(" creating %s" % versionfile_source)
+        print((" creating %s" % versionfile_source))
         with open(versionfile_source, "w") as f:
             assert VCS is not None, "please set versioneer.VCS"
             LONG = LONG_VERSION_PY[VCS]
@@ -842,13 +842,13 @@ class cmd_update_files(Command):
             except EnvironmentError:
                 old = ""
             if INIT_PY_SNIPPET not in old:
-                print(" appending to %s" % ipy)
+                print((" appending to %s" % ipy))
                 with open(ipy, "a") as f:
                     f.write(INIT_PY_SNIPPET)
             else:
-                print(" %s unmodified" % ipy)
+                print((" %s unmodified" % ipy))
         else:
-            print(" %s doesn't exist, ok" % ipy)
+            print((" %s doesn't exist, ok" % ipy))
             ipy = None
 
         # Make sure both the top-level "versioneer.py" and versionfile_source
@@ -876,8 +876,8 @@ class cmd_update_files(Command):
         else:
             print(" 'versioneer.py' already in MANIFEST.in")
         if versionfile_source not in simple_includes:
-            print(" appending versionfile_source ('%s') to MANIFEST.in" %
-                  versionfile_source)
+            print((" appending versionfile_source ('%s') to MANIFEST.in" %
+                  versionfile_source))
             with open(manifest_in, "a") as f:
                 f.write("include %s\n" % versionfile_source)
         else:

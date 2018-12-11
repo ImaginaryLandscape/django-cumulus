@@ -12,7 +12,7 @@ except ImportError:
 
 from django.core.management import execute_manager
 
-import settings
+from . import settings
 
 
 if __name__ == "__main__":

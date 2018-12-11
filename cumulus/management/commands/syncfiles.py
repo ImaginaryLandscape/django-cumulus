@@ -187,7 +187,7 @@ class Command(NoArgsCommand):
             if cloud_datetime and local_datetime < cloud_datetime:
                 self.skip_count += 1
                 if not self.quiet:
-                    print("Skipped {0}: not modified.".format(relpath))
+                    print(("Skipped {0}: not modified.".format(relpath)))
                 continue
             if relpath in remote_objects:
                 self.update_count += 1
@@ -222,7 +222,7 @@ class Command(NoArgsCommand):
 
         self.upload_count += 1
         if not self.quiet or self.verbosity > 1:
-            print("Uploaded: {0}".format(cloud_filename))
+            print(("Uploaded: {0}".format(cloud_filename)))
 
     def delete_extra_files(self, relpaths, cloud_objs):
         """
@@ -234,7 +234,7 @@ class Command(NoArgsCommand):
                     self.delete_cloud_obj(cloud_obj)
                 self.delete_count += 1
                 if not self.quiet or self.verbosity > 1:
-                    print("Deleted: {0}".format(cloud_obj))
+                    print(("Deleted: {0}".format(cloud_obj)))
 
     def delete_cloud_obj(self, cloud_obj):
         """
@@ -250,10 +250,10 @@ class Command(NoArgsCommand):
         Completely wipes out the contents of the container.
         """
         if self.test_run:
-            print("Wipe would delete {0} objects.".format(len(self.container.object_count)))
+            print(("Wipe would delete {0} objects.".format(len(self.container.object_count))))
         else:
             if not self.quiet or self.verbosity > 1:
-                print("Deleting {0} objects...".format(len(self.container.object_count)))
+                print(("Deleting {0} objects...".format(len(self.container.object_count))))
             self._connection.delete_all_objects()
 
     def print_tally(self):
@@ -263,5 +263,5 @@ class Command(NoArgsCommand):
         self.update_count = self.upload_count - self.create_count
         if self.test_run:
             print("Test run complete with the following results:")
-        print("Skipped {0}. Created {1}. Updated {2}. Deleted {3}.".format(
-            self.skip_count, self.create_count, self.update_count, self.delete_count))
+        print(("Skipped {0}. Created {1}. Updated {2}. Deleted {3}.".format(
+            self.skip_count, self.create_count, self.update_count, self.delete_count)))

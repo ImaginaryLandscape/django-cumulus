@@ -21,11 +21,11 @@ class Command(BaseCommand):
         self._connection = Auth()._get_connection()
 
         container_name = args[0]
-        print("Creating container: {0}".format(container_name))
+        print(("Creating container: {0}".format(container_name)))
         container = self._connection.create_container(container_name)
         if options.get("private"):
-            print("Private container: {0}".format(container_name))
+            print(("Private container: {0}".format(container_name)))
             container.make_private()
         else:
-            print("Public container: {0}".format(container_name))
+            print(("Public container: {0}".format(container_name)))
             container.make_public(ttl=CUMULUS["TTL"])

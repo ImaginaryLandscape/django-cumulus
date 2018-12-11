@@ -1,4 +1,4 @@
-from common import *  # noqa
+from .common import *  # noqa
 
 INSTALLED_APPS = (
     'django.contrib.auth',

@@ -10,9 +10,9 @@ except:
     import sha
 
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 
 from django.core.files.base import File, ContentFile
 from django.core.files.storage import Storage

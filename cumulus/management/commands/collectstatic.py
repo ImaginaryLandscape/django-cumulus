@@ -17,7 +17,7 @@ class Command(collectstatic.Command):
                     etag = self.storage._get_object(prefixed_path).etag
                     digest = "{0}".format(hashlib.md5(source_storage.open(path).read()).hexdigest())
                     if etag == digest:
-                        self.log(u"Skipping '{0}' (not modified based on file hash)".format(path))
+                        self.log("Skipping '{0}' (not modified based on file hash)".format(path))
                         return False
                 except:
                     raise

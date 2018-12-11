@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-cumulus'
-copyright = u'2010-2014, Rich Leland, Ferrix Hovi, Thomas Schreiber'
+project = 'django-cumulus'
+copyright = '2010-2014, Rich Leland, Ferrix Hovi, Thomas Schreiber'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -175,8 +175,8 @@ htmlhelp_basename = 'django-cumulusdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'django-cumulus.tex', u'django-cumulus Documentation',
-     u'Rich Leland', 'manual'),
+    ('index', 'django-cumulus.tex', 'django-cumulus Documentation',
+     'Rich Leland', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

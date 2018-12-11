@@ -35,19 +35,19 @@ class Command(BaseCommand):
         if not args:
             account_details = self._connection.get_account_details()
             print("container_count | object_count | bytes_used")
-            print("{0}, {1}, {2}\n".format(
+            print(("{0}, {1}, {2}\n".format(
                 account_details["container_count"],
                 account_details["object_count"],
                 account_details["bytes_used"],
-            ))
+            )))
 
         opts = ["name", "count", "size", "uri"]
         output = [o for o in opts if options.get(o)]
 
         if output:
-            print(" | ".join(output))
+            print((" | ".join(output)))
         else:
-            print(" | ".join(opts))
+            print((" | ".join(opts)))
 
         for container_name in container_names:
             container = self._connection.get_container(container_name)
@@ -61,4 +61,4 @@ class Command(BaseCommand):
             output = [str(info[o]) for o in opts if options.get(o)]
             if not output:
                 output = [str(info[o]) for o in opts]
-            print(", ".join(output))
+            print((", ".join(output)))
